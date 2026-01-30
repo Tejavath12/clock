@@ -1,0 +1,66 @@
+﻿body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #eee;
+}
+
+/* Clock background */
+.clock {
+    width: 400px;
+    height: 400px;
+    background: url("clock.png") no-repeat center;
+    background-size: cover;
+    border-radius: 50%;
+    position: relative;
+}
+
+/* Common hand styles */
+.hand {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: 0%;
+    transform: rotate(90deg);
+}
+
+/* Hour hand */
+.hour {
+    width: 25%;
+    height: 6px;
+    background: black;
+    animation: rotateHour 43200s linear infinite;
+}
+
+/* Minute hand */
+.minute {
+    width: 35%;
+    height: 4px;
+    background: black;
+    animation: rotateMinute 3600s linear infinite;
+}
+
+/* Second hand */
+.second {
+    width: 45%;
+    height: 2px;
+    background: red;
+    animation: rotateSecond 60s linear infinite;
+}
+
+/* Animations */
+@keyframes rotateSecond {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rotateMinute {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rotateHour {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

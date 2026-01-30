@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Attendance Register</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            text-align: center;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        th {
+            background-color: yellow;
+        }
+
+        input {
+            width: 35px;
+            text-align: center;
+        }
+
+        .name, .roll {
+            width: 90px;
+        }
+
+        .total {
+            font-weight: bold;
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Student Daily Attendance Register</h2>
+
+    <div>
+        Branch: <input id="branch">
+        Year: <input id="year">
+        Month: <input id="month">
+        Section: <input id="section">
+    </div>
+
+    <div id="status" style="margin:8px 0; font-weight:bold; color:green;"></div>
+
+    <table id="attTable">
+        <tr>
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Roll No</th>
+            <!-- Days -->
+            <script>
+                for (let i = 1; i <= 31; i++) {
+                    document.write("<th>" + i + "</th>");
+                }
+            </script>
+            <th>Total</th>
+        </tr>
+
+        <tr>
+            <td>1</td>
+            <td><input class="name"></td>
+            <td><input class="roll"></td>
+
+            <!-- Attendance cells -->
+            <script>
+                for (let i = 0; i < 31; i++) {
+                    document.write('<td><input class="att"></td>');
+                }
+            </script>
+
+            <td class="total">0</td>
+        </tr>
+    </table>
+
+    <br>
+    <button onclick="addRow()">Add Student</button>
+
+    <script>
+        /* ADD NEW ROW */
+        function addRow() {
+            let table = document.getElementById("attTable");
+            let rowCount = table.rows.length;
+            let row = table.insertRow();
+
+            row.insertCell(0).innerText = rowCount;
+            row.insertCell(1).innerHTML = '<input class="name">';
+            row.insertCell(2).innerHTML = '<input class="roll">';
+
+            for (let i = 0; i < 31; i++) {
+                row.insertCell().innerHTML = '<input class="att">';
+            }
+
+            row.insertCell().className = "total";
+            row.cells[row.cells.length - 1].innerText = "0";
+        }
+
+        /* UPDATE TOTAL */
+        function updateTotal(row) {
+            let total = 0;
+            row.querySelectorAll(".att").forEach(a => {
+                a.value = a.value.toUpperCase();
+                if (a.value === "P") total++;
+            });
+            row.querySelector(".total").innerText = total;
+        }
+
+        /* AUTO SAVE */
+        function saveData() {
+            let table = document.getElementById("attTable");
+            let data = [];
+
+            for (let i = 1; i < table.rows.length; i++) {
+                let inputs = table.rows[i].querySelectorAll("input");
+                let rowData = [];
+                inputs.forEach(inp => rowData.push(inp.value));
+                data.push(rowData);
+            }
+
+            localStorage.setItem("attendance", JSON.stringify(data));
+            document.getElementById("status").innerText = "Auto-saved ✔";
+        }
+
+        /* LOAD DATA */
+        function loadData() {
+            let saved = JSON.parse(localStorage.getItem("attendance"));
+            if (!saved) return;
+
+            saved.forEach((rowData, i) => {
+                if (i + 1 >= attTable.rows.length) addRow();
+                let row = attTable.rows[i + 1];
+                let inputs = row.querySelectorAll("input");
+                inputs.forEach((inp, j) => inp.value = rowData[j] || "");
+                updateTotal(row);
+            });
+        }
+
+        /* INPUT LISTENER */
+        document.addEventListener("input", function (e) {
+            if (e.target.classList.contains("att")) {
+                updateTotal(e.target.closest("tr"));
+            }
+            saveData();
+        });
+
+        /* KEYBOARD NAVIGATION */
+        document.addEventListener("keydown", function (e) {
+            let el = document.activeElement;
+            if (el.tagName !== "INPUT") return;
+
+            let td = el.parentElement;
+            let tr = td.parentElement;
+            let table = document.getElementById("attTable");
+            let col = td.cellIndex;
+            let row = tr.rowIndex;
+
+            if (["Enter", "Tab", "ArrowRight"].includes(e.key)) {
+                e.preventDefault();
+                tr.cells[col + 1]?.querySelector("input")?.focus();
+            }
+            if (e.key === "ArrowLeft") {
+                tr.cells[col - 1]?.querySelector("input")?.focus();
+            }
+            if (e.key === "ArrowDown") {
+                table.rows[row + 1]?.cells[col]?.querySelector("input")?.focus();
+            }
+            if (e.key === "ArrowUp") {
+                table.rows[row - 1]?.cells[col]?.querySelector("input")?.focus();
+            }
+        });
+
+        /* LOAD ON PAGE OPEN */
+        window.onload = loadData;
+    </script>
+
+</body>
+</html>
